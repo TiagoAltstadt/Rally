@@ -52,7 +52,6 @@ struct DB
 
 DB linea[100];
 
-
 main()
 {
     Abrir();
@@ -94,59 +93,63 @@ int Abrir()
         counter++;
     }
 
-	for (int i=0; i<10; i++){ // En cada linea, asigno a el array linea[] su respectiva variable
-		
-		int x = 0;
-		
-		stringstream etapa(trim(data_line[i],0,1)); // Como tienen que ser de tipo int, los transformo y despues los asigno
-		etapa >> x;
-		linea[i].nro_etapa = x;
-		
-		stringstream tipo(trim(data_line[i],2,3));
-		tipo >> x;
-		linea[i].tipo_vehiculo = x;
-		
-		stringstream numero(trim(data_line[i],3,5));
-		numero >> x;
-		linea[i].nro_vehiculo = x;
-		
-		stringstream tiempo(trim(data_line[i],65,67));
-		tiempo >> x;
-		linea[i].tiempo = x;
-			
-		linea[i].nombre_piloto = trim(data_line[i],7,25); // Como estos tienen que ser un string, los asigno asi nomas al toque perro
-		
-		linea[i].nombre_copiloto = trim(data_line[i],28,45);
-		
-		linea[i].marca_vehiculo = trim(data_line[i],49,63);	
-	}
-	
-	for (int i=0; i<3; i++){ // Esto simplemente devuelve por consola la data
-	
-	cout<<linea[i].nro_etapa<<endl;	
-	cout<<linea[i].tipo_vehiculo<<endl;	
-	cout<<linea[i].nro_vehiculo<<endl;	
-	cout<<linea[i].nombre_piloto<<endl;
-	cout<<linea[i].nombre_copiloto<<endl;
-	cout<<linea[i].marca_vehiculo<<endl;
-	cout<<linea[i].tiempo<<endl;
-	cout<<endl;
-	}
+    for (int i = 0; i < 10; i++)
+    { // En cada linea, asigno a el array linea[] su respectiva variable
+
+        int x = 0;
+
+        stringstream etapa(trim(data_line[i], 0, 1)); // Como tienen que ser de tipo int, los transformo y despues los asigno
+        etapa >> x;
+        linea[i].nro_etapa = x;
+
+        stringstream tipo(trim(data_line[i], 2, 3));
+        tipo >> x;
+        linea[i].tipo_vehiculo = x;
+
+        stringstream numero(trim(data_line[i], 3, 5));
+        numero >> x;
+        linea[i].nro_vehiculo = x;
+
+        stringstream tiempo(trim(data_line[i], 65, 67));
+        tiempo >> x;
+        linea[i].tiempo = x;
+
+        linea[i].nombre_piloto = trim(data_line[i], 7, 25); // Como estos tienen que ser un string, los asigno asi nomas al toque perro
+
+        linea[i].nombre_copiloto = trim(data_line[i], 28, 45);
+
+        linea[i].marca_vehiculo = trim(data_line[i], 49, 63);
+    }
+
+    for (int i = 0; i < 3; i++)
+    { // Esto simplemente devuelve por consola la data
+
+        cout << linea[i].nro_etapa << endl;
+        cout << linea[i].tipo_vehiculo << endl;
+        cout << linea[i].nro_vehiculo << endl;
+        cout << linea[i].nombre_piloto << endl;
+        cout << linea[i].nombre_copiloto << endl;
+        cout << linea[i].marca_vehiculo << endl;
+        cout << linea[i].tiempo << endl;
+        cout << endl;
+    }
 
     file.close(); // Cerramos el programa para que no quede abierto y porque lo dice el de youtube
 
     return 0;
 }
-int Cerrar(){
-	// Agregar algo para que cierre el archivo
+int Cerrar()
+{
+    // Agregar algo para que cierre el archivo
 }
 
-string trim(string str, int a, int b){ // Funcion para recortar un string
-	string ret;
-	
-	for (int i=a; i<=b; i++){
-		ret = ret + str[i];
-	}
-	return ret;
-}
+string trim(string str, int a, int b)
+{ // Funcion para recortar un string
+    string ret;
 
+    for (int i = a; i <= b; i++)
+    {
+        ret = ret + str[i];
+    }
+    return ret;
+}
