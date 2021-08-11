@@ -1,0 +1,4 @@
+N Etapa  T Vehiculo N Vehiculo	N Piloto	N Copiloto	M Vehiculo	Tiempo Minimo
+   3 	     2 		41      Juan Perez     Pedro Picapiedra   Ford               215
+   1	     4	        7	Ricardo Leon    Ma Belle          Alfa Romeo          93
+   4         3	        25      Patricio Gomez	Susana Torio    VolksWagen           182
