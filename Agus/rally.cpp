@@ -27,15 +27,12 @@ struct sTiempoTotal {
     string nombre_piloto,
         nombre_copiloto,
         marca_vehiculo;
-    ushort tiempo,
-        tipo_vehiculo,
+    ushort tipo_vehiculo,
         nro_vehiculo,
         tiempo_total;
 };
 typedef sEtapasRally tblEtapasRally[MAX_REGS];
-typedef sTiempoTotal tblTiemposTotales[MAX_REGS];
-typedef sEtapasRally tblEtapasTipos[MAX_ETAPAS][MAX_TIPOS];
-
+typedef sTiempoTotal tblTiemposTotales[MAX_REGS/MAX_ETAPAS];
 
 //Métodos auxiliares
 
@@ -56,7 +53,13 @@ void IntCmb(sEtapasRally &linea_1, sEtapasRally &linea_2) {
     linea_2 = aux;
 } // IntCmb
 
-void OrdxBur(tblEtapasRally linea_tabla,ushort card) {
+void IntCmb(sTiempoTotal &linea_1, sTiempoTotal &linea_2) {
+    sTiempoTotal aux = linea_1;
+    linea_1 = linea_2;
+    linea_2 = aux;
+} // IntCmb
+
+void OrdxBur1(tblEtapasRally linea_tabla,ushort card) {
     bool ordenado;
     ushort  k = 0;
 
@@ -71,9 +74,9 @@ void OrdxBur(tblEtapasRally linea_tabla,ushort card) {
         }
     }
     while (!ordenado);
-} // OrdxBur
+} // OrdxBur según tipo_vehiculo
 
-void OrdxBur(ushort card, tblEtapasRally linea_tabla) {
+void OrdxBur2(tblEtapasRally linea_tabla, ushort card) {
     bool ordenado;
     ushort  k = 0;
 
@@ -88,41 +91,59 @@ void OrdxBur(ushort card, tblEtapasRally linea_tabla) {
         }
     }
     while (!ordenado);
-} // OrdxBur
+} // OrdxBur según nro_etapa
+void OrdxBur3(tblEtapasRally linea_tabla, ushort card) {
+    bool ordenado;
+    ushort  k = 0;
 
-ushort BusBinVec(tblEtapasRally linea_tabla, ushort ult, ushort valor_buscado) {
-  ushort pri = 1,
-       med;
+    do{
+        ordenado = true;
+        k++;
+        for (ushort i = 0; i < card - k; i++){
+            if (linea_tabla[i].nro_vehiculo > linea_tabla[i + 1].nro_vehiculo){
+            ordenado = false;
+            IntCmb(linea_tabla[i],linea_tabla[i + 1]);
+            }
+        }
+    }
+    while (!ordenado);
+} // OrdxBur la copia del array de registros según nro_vehiculo
 
-  while (pri <= ult) {
-    med = (pri + ult) / 2;
-	if (linea_tabla[med].tipo_vehiculo == valor_buscado)
-	  return med;
-  else
-	  if (linea_tabla[med].tipo_vehiculo< valor_buscado)
-		pri = med + 1;
-    else
-		  ult = med - 1;
-  }
-  return 0;
-} // BusBinVec
+void OrdxBur4(tblTiemposTotales tiempos_totales, ushort card) {
+    bool ordenado;
+    ushort  k = 0;
 
-ushort BusBinVec1(tblEtapasRally linea_tabla, ushort valor_buscado,ushort ult) {
-  ushort pri = 1,
-       med;
+    do{
+        ordenado = true;
+        k++;
+        for (ushort i = 0; i < card - k; i++){
+            if (tiempos_totales[i].tiempo_total > tiempos_totales[i + 1].tiempo_total){
+            ordenado = false;
+            IntCmb(tiempos_totales[i],tiempos_totales[i + 1]);
+            }
+        }
+    }
+    while (!ordenado);
+}// OrdxBur según tiempos totales en el vector tiempos_totales
 
-  while (pri <= ult) {
-    med = (pri + ult) / 2;
-	if (linea_tabla[med].nro_etapa == valor_buscado)
-	  return med;
-  else
-	  if (linea_tabla[med].nro_etapa < valor_buscado)
-		pri = med + 1;
-    else
-		  ult = med - 1;
-  }
-  return 0;
-} // BusBinVec
+void OrdxBur5(tblTiemposTotales tiempos_totales, ushort card) {
+    bool ordenado;
+    ushort  k = 0;
+
+    do{
+        ordenado = true;
+        k++;
+        for (ushort i = 0; i < card - k; i++){
+            if (tiempos_totales[i].tipo_vehiculo > tiempos_totales[i + 1].tipo_vehiculo){
+            ordenado = false;
+            IntCmb(tiempos_totales[i],tiempos_totales[i + 1]);
+            }
+        }
+    }
+    while (!ordenado);
+} // OrdxBur segun tipo de vehiculo en el vector de tiempos totales
+
+
 
 //Metodos principales
 void Abrir (FILE **file){
@@ -175,9 +196,34 @@ bool LeerEtapaRally (tblEtapasRally linea_tabla, FILE **file, ushort &counter){
 }
 
 void ProcEtapasRally(tblEtapasRally linea_tabla, FILE **file,ushort &counter){
+
     if (!LeerEtapaRally(linea_tabla, file, counter)){
         cout << "No se pudo abrir el archivo";
         exit(1);
+    } //Se guardan los valores en los arrays de sEtapasRally y sTiempoTotal
+}
+
+void ObtTiemposTotales(tblTiemposTotales tiempos_totales, tblEtapasRally linea_tabla,ushort counter, ushort &counter_tiempos, ushort &abandonos){
+    OrdxBur3(linea_tabla,counter);
+    counter_tiempos = 0;
+    ushort aux = 0;
+    abandonos = 0;
+
+    for (ushort i = 0; i < counter; i++){
+        if(linea_tabla[i].tiempo == 999 & linea_tabla[i-1].tiempo != 999){
+           abandonos++;
+        }//Calculo los conductores que abandonaron
+        aux = aux + linea_tabla[i].tiempo;
+        if(linea_tabla[i].nro_vehiculo != linea_tabla[i+1].nro_vehiculo){
+            tiempos_totales[counter_tiempos].nombre_piloto = linea_tabla[i].nombre_piloto;
+            tiempos_totales[counter_tiempos].nombre_copiloto = linea_tabla[i].nombre_copiloto;
+            tiempos_totales[counter_tiempos].marca_vehiculo = linea_tabla[i].marca_vehiculo;
+            tiempos_totales[counter_tiempos].tipo_vehiculo = linea_tabla[i].tipo_vehiculo;
+            tiempos_totales[counter_tiempos].nro_vehiculo = linea_tabla[i].nro_vehiculo;
+            tiempos_totales[counter_tiempos].tiempo_total = aux;
+            counter_tiempos++;
+            aux = 0;
+        }
     }
 }
 
@@ -189,14 +235,14 @@ void ListadoCorredores(tblEtapasRally linea_tabla, ushort counter){
     for (ushort i = 0 ; i<counter; i++){
         cout <<" "<< linea_tabla[i].nro_etapa <<"     "<< linea_tabla[i].tipo_vehiculo <<"      "
             << linea_tabla[i].nombre_piloto <<"     "<< linea_tabla[i].nombre_copiloto <<"         "
-            << linea_tabla[i].marca_vehiculo <<"    "<< linea_tabla[i].tiempo << endl;
+            << linea_tabla[i].marca_vehiculo <<"    "<<setw(3)<< linea_tabla[i].tiempo << endl;
     }
     cout << endl;
 }
 
 void ListadoLargada(tblEtapasRally linea_tabla, ushort counter){
-    OrdxBur(linea_tabla,counter);
-    OrdxBur(counter,linea_tabla);
+    OrdxBur1(linea_tabla,counter);
+    OrdxBur2(linea_tabla,counter);
     ushort z = 0;
 
     cout << "   Listado de largada"<< endl;
@@ -211,17 +257,49 @@ void ListadoLargada(tblEtapasRally linea_tabla, ushort counter){
                 if (linea_tabla[z].nro_etapa == x & linea_tabla[z].tipo_vehiculo == y){
                     cout <<"          "<<setw(2)<< linea_tabla[z].nro_vehiculo<<"        "<<linea_tabla[z].nombre_piloto
                         <<" "<< linea_tabla[z].nombre_copiloto <<" "<< linea_tabla[z].marca_vehiculo << endl;
-
                 } else {
                 break;
                 }
              }
         }
     }
-
-
+    cout << endl;
 }
 
+void ListadoPuestosFinal(tblTiemposTotales tiempos_totales,ushort counter_tiempos){
+    OrdxBur4(tiempos_totales,counter_tiempos);
+    cout << "   Listado de Puestos Finales Carrera Rally" << endl;
+    cout << "   ----------------------------------------" << endl;
+    cout << "Puesto T.Vehic. Nro.Vehic. Nom. Piloto          Nom. CoPiloto        Marca Vehic.    Tiempo Total" << endl;
+    for (ushort i = 0; i < counter_tiempos; i++){
+        ushort puesto = i+1;
+        cout << setw(2) << puesto << "       " << tiempos_totales[i].tipo_vehiculo << "        " << setw(2)
+            << tiempos_totales[i].nro_vehiculo << "       "<< tiempos_totales[i].nombre_piloto << " " << tiempos_totales[i].nombre_copiloto << " "
+            << tiempos_totales[i].marca_vehiculo << "   " << setw(4) <<tiempos_totales[i].tiempo_total << endl;
+    }
+    cout << endl;
+}
+
+void ListadoGanadoresxTipoVehic(tblTiemposTotales tiempos_totales, ushort counter_tiempos, ushort abandonos){
+    OrdxBur5(tiempos_totales,counter_tiempos);
+
+    ushort x = 0;
+    cout << "   Listados de Ganadores por tipos de Vehiculos" << endl;
+    cout << "   --------------------------------------------" << endl;
+    cout << "Tipo Vehic.    Nro. Vehic.    Nombre del Piloto  Tiempo Total" << endl;
+    for (ushort i = 0; i < MAX_TIPOS; i++){
+        for (x; x < counter_tiempos; x++){
+
+            if(tiempos_totales[x].tipo_vehiculo != tiempos_totales[x-1].tipo_vehiculo){
+                cout << "    "<< tiempos_totales[x].tipo_vehiculo << "              "<< setw(2)
+                << tiempos_totales[x].nro_vehiculo << "         " << tiempos_totales[x].nombre_piloto << "   "
+                << tiempos_totales[x].tiempo_total << endl;
+            }
+        }
+    }
+    cout << endl << "Cantidad de conductores que abandonaron: " << abandonos;
+    freopen("CON","w", stdout); // Vuelvo a establecer la salida en la consola
+}
 
 void Cerrar(FILE **file){
     fclose(*file);
@@ -233,12 +311,19 @@ void Cerrar(FILE **file){
 int main() {
     FILE *file;
     tblEtapasRally linea_tabla;
+    tblTiemposTotales tiempos_totales;
     ushort counter;
+    ushort counter_tiempos;
+    ushort abandonos;
 
     Abrir(&file);
     ProcEtapasRally(linea_tabla, &file, counter);
     ListadoCorredores(linea_tabla,counter);
+    ObtTiemposTotales(tiempos_totales, linea_tabla, counter, counter_tiempos, abandonos);
     ListadoLargada(linea_tabla, counter);
+    ListadoPuestosFinal(tiempos_totales,counter_tiempos);
+
+    ListadoGanadoresxTipoVehic(tiempos_totales, counter_tiempos, abandonos);
     /*
     Falta hacer ListadoPuestosFinal(argumentos…);  // En el módulo ListadoGanadoresxTipoVehic debe
     Falta hacer ListadoGanadoresxTipoVehic(argumentos…);  // volverse el freopen a la consola.
@@ -246,8 +331,3 @@ int main() {
     Cerrar(&file);
     return 0;
 } //main
-
-
-
-
-
